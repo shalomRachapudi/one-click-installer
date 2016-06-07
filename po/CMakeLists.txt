@@ -1,3 +1,2 @@
 find_package(KF5I18n)
-set(LOCALE_INSTALL_DIR /usr/share/locale/)
 KI18N_INSTALL(${CMAKE_CURRENT_SOURCE_DIR})
