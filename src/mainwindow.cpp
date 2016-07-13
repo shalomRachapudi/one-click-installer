@@ -19,7 +19,7 @@
 
 #include <klocalizedstring.h>
 #include "mainwindow.h"
-#include "checkconflicts.h"
+#include "checkforconflictscreen.h"
 
 MainWindow::MainWindow( const QString& filename, const QString& tmpFileName, bool fakeRequested, QObject *parent )
 {
