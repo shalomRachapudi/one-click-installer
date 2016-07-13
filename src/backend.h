@@ -59,7 +59,8 @@ protected:
      */
     bool exists( const QString& repo );
 
-
+signals:
+    void checkForConflicts();
 
 private slots:
     void finished( int v );
