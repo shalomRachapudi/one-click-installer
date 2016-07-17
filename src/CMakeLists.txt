@@ -25,8 +25,8 @@ add_definitions(${Qt5DBus_DEFINITIONS})
 set(oneclickinstaller_SOURCES main.cpp utils.cpp mainwindow.cpp firstscreen.cpp settings.cpp fakebackend.cpp repository.cpp package.cpp ympparser.cpp packagebackend.cpp installscreen.cpp repositorywidget.cpp summary.cpp backend.cpp keyringcallbacks.cpp mainheader.cpp packagedetails.cpp repositorymetadata.cpp repositorydata.cpp packagemetadata.cpp clientdbus.cpp dbusadaptor.cpp)
 set(oneclickinstaller_HEADERS utils.h mainwindow.h checkconflictscreen.h firstscreen.h settings.h installscreen.h repositorywidget.h summary.h mainheader.h packagedetails.h packagemetadata.h backend.h packagebackend.h dbusadaptor.h clientdbus.h)
 
-set(oneclickhelper_SOURCES interfacemain.cpp backend.cpp keyringcallbacks.cpp utils.cpp packagebackend.cpp dbusadaptor.cpp)
-set(oneclickhelper_HEADERS backend.h packagebackend.h keyringcallbacks.h utils.h dbusadaptor.h)
+set(oneclickhelper_HEADERS backend.h permissions.h utils.h)
+set(oneclickhelper_SOURCES interfacemain.cpp backend.cpp permissions.cpp utils.cpp)
 
 QT5_WRAP_CPP(oneclickhelper_HEADERS_MOC ${oneclickhelper_HEADERS})
 QT5_WRAP_CPP(oneclickinstaller_HEADERS_MOC ${oneclickinstaller_HEADERS})
@@ -36,13 +36,18 @@ QT5_WRAP_CPP(oneclickinstaller_HEADERS_MOC ${oneclickinstaller_HEADERS})
 set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-add_executable(oneclickhelper ${QT_LIBRARIES} ${oneclickhelper_SOURCES} ${oneclickhelper_HEADERS} ${oneclickhelper_HEADERS_MOC})
+add_executable(oneclickhelper ${oneclickhelper_SOURCES} ${oneclickhelper_HEADERS} ${oneclickhelper_HEADERS_MOC})
 add_executable(oneclickinstaller ${QT_LIBRARIES} ${oneclickinstaller_SOURCES} ${oneclickinstaller_HEADERS} ${oneclickinstaller_HEADERS_MOC})
 
-target_link_libraries(oneclickhelper ${QT_QTGUI_LIBRARY} zypp ${QT_QTDBUS_LIBRARY})
+target_link_libraries(oneclickhelper zypp ${QT_QTDBUS_LIBRARY})
 target_link_libraries(oneclickinstaller ${QT_QTGUI_LIBRARY} KF5::I18n zypp ${QT_QTDBUS_LIBRARY} ${PackageKitQt5_LIBRARIES})
 
-INSTALL(TARGETS oneclickhelper DESTINATION /usr/sbin)
+set(PROGRAM_PERMISSIONS_DEFAULT
+    OWNER_WRITE OWNER_READ OWNER_EXECUTE
+    GROUP_READ GROUP_EXECUTE
+    WORLD_READ WORLD_EXECUTE)
+    
+INSTALL(TARGETS oneclickhelper PERMISSIONS ${PROGRAM_PERMISSIONS_DEFAULT} SETUID DESTINATION /usr/sbin)
 INSTALL(TARGETS oneclickinstaller DESTINATION /usr/bin)
 #INSTALL_TARGETS(/sbin oneclickhelper)
 
