@@ -29,6 +29,9 @@
 #include "backend.h"
 #include "ocihelperadaptor.h"	//generated during build time
 
+// static variable
+QList<QString> Backend::s_packages;
+
 Backend::Backend()
 {	
     new OCIHelperAdaptor( this );
@@ -55,11 +58,21 @@ Backend::Backend()
 	exit( 1 );
     }
     
-    /******************************************* INSTALLATION *******************************************/
+    m_packageId = 0;
+    install();
+}
+
+void Backend::install() 
+{
+    /******************************************* INSTALLATION *****************************************/
     // Step 1. Mark packages for installation
-    //FIXME hardcoded installation
-    ZypperUtils::markPackagesForInstallation( "http://download.videolan.org/SuSE/Tumbleweed/", "vlc" );
-    m_zypp = ZypperUtils::zyppPtr();
+    
+    if ( s_packages.isEmpty() )
+	return;
+    
+    QString package = s_packages.takeFirst();
+    ZyppInstall::markPackagesForInstallation( package.toStdString() );
+    m_zypp = ZyppInstall::zyppPtr();
     
     // Step 2. Resolve package dependencies
     resolveConflicts();
@@ -67,7 +80,7 @@ Backend::Backend()
 
 void Backend::resolveConflicts()
 {
-    if ( !ZypperUtils::resolveConflictsAndDependencies() ) {
+    if ( !ZyppInstall::resolveConflictsAndDependencies() ) {
 	emit hasConflicts();
 	qDebug() << "emitting hasConflicts!";
 	resolve();
@@ -78,7 +91,18 @@ void Backend::resolveConflicts()
     emit noConflicts();
     
     // Step 3. Commit Changes
-    ZypperUtils::commitChanges();
+    ZyppInstall::commitChanges();
+    
+    // Step 4. Continue the process, if there are more than 1 packages to install 
+    install();
+}
+
+void Backend::resolve()
+{
+    m_resolverProblemList = QList<ResolverProblem_Ptr>::fromStdList( m_zypp->resolver()->problems() );
+    qDebug() << "size : " << m_resolverProblemList.size();
+    m_solutionsToTry.clear();
+    resolve( *m_resolverProblemList.takeFirst() );
 }
 
 void Backend::resolve( const ResolverProblem& problem )
@@ -118,19 +142,10 @@ void Backend::applySolution( int solId )
     }
 }
 
-void Backend::resolve()
+void Backend::addPackage(const QString& package)
 {
-    m_resolverProblemList = QList<ResolverProblem_Ptr>::fromStdList( m_zypp->resolver()->problems() );
-    qDebug() << "size=======" << m_resolverProblemList.size();
-    m_solutionsToTry.clear();
-    resolve( *m_resolverProblemList.takeFirst() );
+    s_packages << package;
 }
-
-void Backend::install() {}
-
-void Backend::addRepository() {}
-
-void Backend::addPackage() {}
 
 void Backend::killBackend()
 {
