@@ -49,9 +49,8 @@ private:
     QList<ResolverProblem_Ptr> m_resolverProblemList;
     QList<ProblemSolution_Ptr> m_solutionsToTry;
     org::opensuse::oneclickinstaller *m_oci;
-    unsigned m_packageId;
-    
-    static QList<QString> s_packages;
+        
+    static QStringList s_packages;
 };
 
 #endif

@@ -30,7 +30,7 @@
 #include "ocihelperadaptor.h"	//generated during build time
 
 // static variable
-QList<QString> Backend::s_packages;
+QStringList Backend::s_packages;
 
 Backend::Backend()
 {	
@@ -58,7 +58,6 @@ Backend::Backend()
 	exit( 1 );
     }
     
-    m_packageId = 0;
     install();
 }
 
