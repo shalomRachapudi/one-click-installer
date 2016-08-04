@@ -36,7 +36,7 @@ void PackageMetadata::getData( const QString& packageName )
     Info packageInfo = ZyppInfo::queryMetadataForPackage( packageName.toStdString() );
     
     m_version = QString::fromStdString( packageInfo.version() );
-    m_size = QString::fromStdString( packageInfo.installedSize() );
+    m_size = QString::fromStdString( packageInfo.installedSizeAsString() );
     
     // We use QMetaObject::invokeMethod to queue the call until the finished() signal is connected
     // by the parent object later on in the code. Please, don't replace it with a direct call to
